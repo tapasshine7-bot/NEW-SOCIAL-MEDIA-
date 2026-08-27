@@ -33,8 +33,8 @@ export function AppShell({ children, compact = false }: { children: ReactNode; c
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
-            <span className="luma-mark grid h-8 w-8 place-items-center rounded-[12px] bg-[linear-gradient(135deg,#635BFF,#B97BFF_55%,#65D7FF)] text-sm font-black text-white shadow-[0_8px_22px_rgba(99,91,255,0.28)]">L</span>
-            <span className="text-[1.05rem]">luma</span>
+            <span className="nuvora-mark grid h-8 w-8 place-items-center rounded-[12px] bg-[linear-gradient(135deg,#635BFF,#B97BFF_55%,#65D7FF)] text-sm font-black text-white shadow-[0_8px_22px_rgba(99,91,255,0.28)]">N</span>
+            <span className="text-[1.05rem]">nuvora</span>
           </Link>
           {!compact && <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
             {navigation.slice(0, 2).map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={`flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium transition ${location === href ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"}`}><Icon size={16} />{label}</Link>)}

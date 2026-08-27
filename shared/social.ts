@@ -1,4 +1,4 @@
-export const APP_NAME = "Luma";
+export const APP_NAME = "Nuvora";
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 export const MAX_VIDEO_UPLOAD_BYTES = 50 * 1024 * 1024;
 export const IMAGE_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;

@@ -41,3 +41,12 @@
 - [x] Add an original, high-clarity mobile feed header and horizontal story strip with visible creation and activity entry points.
 - [x] Refine the labeled mobile bottom navigation and universal creation behavior for immediate first-time understanding.
 - [x] Make short-video discovery visibly available from the home experience and verify all refined mobile routes.
+- [x] Choose and apply an original product name, visual identity, and PWA metadata replacement for Luma.
+- [x] Defer Google and Facebook provider flows at the user’s request; use normal sign-up and sign-in as the sole account entry method.
+- [x] Verify profiles, social content, conversations, and messages remain database-backed across the renamed authentication flow.
+- [x] Audit the current OAuth-only session mechanism and define a secure local-credential session path.
+- [x] Add hashed local credentials, secure session records, validated registration/sign-in APIs, and safe error/rate-limit behavior.
+- [x] Build clear mobile-first Sign up, Sign in, and password-recovery-request interfaces without exposing account information.
+- [x] Test identity persistence and confirm saved profiles, posts, stories, conversations, and messages remain linked to the signed-in member.
+- [x] Add local-auth integration coverage for session issuance, duplicate accounts, invalid credentials, and linked member data retrieval.
+- [x] Confirm the normal-only sign-up and sign-in implementation is the final configured authentication path.

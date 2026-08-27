@@ -16,6 +16,7 @@ import Reels from "./pages/Reels";
 import Stories from "./pages/Stories";
 import Admin from "./pages/Admin";
 import Onboarding from "./pages/Onboarding";
+import { AccountHelp, Login, SignUp } from "./pages/AuthPages";
 import Create from "./pages/Create";
 
 function Router() {
@@ -32,6 +33,9 @@ function Router() {
       <Route path={"/reels"} component={Reels} />
       <Route path={"/stories"} component={Stories} />
       <Route path={"/onboarding"} component={Onboarding} />
+      <Route path={"/signup"} component={SignUp} />
+      <Route path={"/login"} component={Login} />
+      <Route path={"/account-help"} component={AccountHelp} />
       <Route path={"/create"} component={Create} />
       <Route path={"/admin"} component={Admin} />
       <Route path={"/settings"} component={Settings} />

@@ -1,6 +1,6 @@
-# Luma
+# Nuvora
 
-**Luma** is a mobile-first social and messaging PWA built with React, TypeScript, Express, tRPC, Drizzle ORM, MySQL-compatible storage, Manus OAuth, and S3-compatible object storage.
+**Nuvora** is a mobile-first social and messaging PWA built with React, TypeScript, Express, tRPC, Drizzle ORM, MySQL-compatible storage, Manus OAuth, and S3-compatible object storage.
 
 ## Product scope
 

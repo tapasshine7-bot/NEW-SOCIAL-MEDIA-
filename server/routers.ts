@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { accountRouter } from "./routers/account";
 import { adminRouter } from "./routers/admin";
+import { localAuthRouter } from "./routers/localAuth";
 import { exploreRouter } from "./routers/explore";
 import { messagesRouter } from "./routers/messages";
 import { notificationsRouter } from "./routers/notifications";
@@ -25,6 +26,7 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+    local: localAuthRouter,
   }),
   account: accountRouter,
   platform: platformRouter,

@@ -23,7 +23,7 @@ vi.mock("./db/social", () => ({
 import { accountRouter } from "./routers/account";
 
 const profile = {
-  id: 8, publicId: "usr_demo", userId: 1, username: "luma_member", displayName: "Luma Member", bio: null, website: null, avatarKey: null, avatarUrl: null,
+  id: 8, publicId: "usr_demo", userId: 1, username: "nuvora_member", displayName: "Nuvora Member", bio: null, website: null, avatarKey: null, avatarUrl: null,
   isPrivate: false, allowMessages: "everyone" as const, allowMentions: "everyone" as const, showActivityStatus: true, readReceipts: true, storyVisibility: "everyone" as const,
   followersCount: 0, followingCount: 0, postsCount: 0, createdAt: new Date(), updatedAt: new Date(),
 };
