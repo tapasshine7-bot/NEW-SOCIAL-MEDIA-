@@ -50,3 +50,14 @@
 - [x] Test identity persistence and confirm saved profiles, posts, stories, conversations, and messages remain linked to the signed-in member.
 - [x] Add local-auth integration coverage for session issuance, duplicate accounts, invalid credentials, and linked member data retrieval.
 - [x] Confirm the normal-only sign-up and sign-in implementation is the final configured authentication path.
+- [x] Audit and fix normal sign-up/sign-in page visibility from all public and authenticated entry points.
+- [x] Add secure multi-account management with explicit account switching and sign-out safeguards.
+- [x] Defer mobile-number OTP verification at the user’s request; no OTP UI or delivery behavior is exposed.
+- [x] Validate normal auth visibility, account-switch behavior, and responsive mobile flow.
+- [x] Confirm the focused normal-email authentication flow contains no Google, Facebook, or mobile OTP entry points.
+- [x] Recheck the profile route after its protected account query settles and confirm its normal-login fallback remains visible for signed-out visitors.
+- [x] Validate the signed-out `/profile` normal-login fallback with automated rendering coverage.
+- [x] Remove obsolete connected-account wording from Account Help and recheck normal-auth-only entry copy.
+- [x] Pass a selected remembered account’s email privately from Account Center to the login form after sign-out.
+- [x] Add automated coverage for the remembered-account login prefill handoff and its non-sensitive storage behavior.
+- [x] Replace remaining user-visible legacy Luma branding in current source with Nuvora.

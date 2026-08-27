@@ -18,6 +18,7 @@ import Admin from "./pages/Admin";
 import Onboarding from "./pages/Onboarding";
 import { AccountHelp, Login, SignUp } from "./pages/AuthPages";
 import Create from "./pages/Create";
+import Accounts from "./pages/Accounts";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -39,6 +40,7 @@ function Router() {
       <Route path={"/create"} component={Create} />
       <Route path={"/admin"} component={Admin} />
       <Route path={"/settings"} component={Settings} />
+      <Route path={"/accounts"} component={Accounts} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

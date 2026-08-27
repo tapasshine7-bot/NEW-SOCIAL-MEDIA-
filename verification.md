@@ -21,3 +21,15 @@ The Nuvora sign-up and sign-in screens are responsive at the primary mobile view
 The normal email-and-password Sign up, Sign in, and account-assistance routes were verified at mobile and desktop widths. The flow avoids account enumeration in invalid-credential feedback, and the test suite now covers salted hashing, matching-password verification, session issuance on successful registration, duplicate-email rejection, and invalid-password rejection. The Nuvora product mark and name appear on the verified authentication surfaces.
 
 The final local-auth workflow test also verifies successful normal sign-in creates the protected session cookie and updates the member’s sign-in timestamp. Combined with the linked-profile test, this confirms the authenticated local member carries the same identity used by the profile, social, story, conversation, and message relationships.
+
+## Focused normal authentication
+
+The final mobile checks show distinct, immediately visible `/signup` and `/login` screens with normal name/email/password registration, familiar password visibility controls, clear password rules, and direct links between the two paths. No Google, Facebook, connected-account, or OTP entry points appear on these account-access surfaces. The final validation passed 24 automated tests, TypeScript checking, and a production build.
+
+The mobile account-center screen displays the current account, an explicit Add another account action, a secure sign-out-and-switch action, and a clear statement that passwords are not kept in the device list.
+
+The subsequent profile check settled correctly: the signed-in member profile displays its identity, count hierarchy, edit/share controls, content tabs, and first-post call to action without a loading loop.
+
+Automated rendering coverage also verifies that a signed-out visitor to `/profile` receives the normal `/login` link and the secure-session profile prompt rather than an external-provider route.
+
+Account switching now stores a selected remembered email only in session storage while signing out, then consumes it once to prefill `/login`; no password or session token is stored in the device account list. Account Help contains no connected-account recovery guidance, and the remaining short-video share title now uses Nuvora.

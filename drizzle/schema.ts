@@ -36,6 +36,7 @@ const notificationKinds = [
   "system",
 ] as const;
 const uploadPurposes = ["avatar", "post", "story", "message", "voice", "video"] as const;
+const mobileVerificationStates = ["pending", "verified", "expired", "failed"] as const;
 
 /** Core identity table synchronized by the Manus OAuth session flow. */
 export const users = mysqlTable("users", {
@@ -96,6 +97,26 @@ export const accountIdentities = mysqlTable("account_identities", {
 }, table => [
   uniqueIndex("account_identities_provider_account_unique").on(table.provider, table.providerAccountId),
   index("account_identities_user_idx").on(table.userId),
+]);
+
+/** Audit-safe state for SMS OTP checks; OTP code values are never stored locally. */
+export const mobileVerifications = mysqlTable("mobile_verifications", {
+  id: int("id").autoincrement().primaryKey(),
+  publicId: varchar("publicId", { length: 32 }).notNull(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  phoneNumber: varchar("phoneNumber", { length: 20 }).notNull(),
+  provider: varchar("provider", { length: 48 }).notNull(),
+  status: mysqlEnum("status", mobileVerificationStates).default("pending").notNull(),
+  attempts: int("attempts").default(0).notNull(),
+  lastRequestedAt: timestamp("lastRequestedAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  verifiedAt: timestamp("verifiedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [
+  uniqueIndex("mobile_verifications_public_id_unique").on(table.publicId),
+  index("mobile_verifications_user_status_idx").on(table.userId, table.status, table.createdAt),
+  index("mobile_verifications_phone_status_idx").on(table.phoneNumber, table.status),
 ]);
 
 export const follows = mysqlTable("follows", {
