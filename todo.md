@@ -65,3 +65,4 @@
 - [ ] Deploy the pushed repository to Vercel and verify the deployment status.
 - [ ] Fix the Vercel deployment so it serves the Nuvora client application rather than bundled server source text.
 - [ ] Add a Vercel serverless API entry point so client account and social requests no longer fall through to the HTML application shell.
+- [ ] Configure explicit Vercel static and Node function builders so both the Vite client and API route deploy together.
