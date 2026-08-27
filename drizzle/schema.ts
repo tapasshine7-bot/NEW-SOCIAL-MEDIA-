@@ -256,6 +256,15 @@ export const storyViews = mysqlTable("story_views", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, table => [uniqueIndex("story_views_pair_unique").on(table.storyId, table.viewerId), index("story_views_story_idx").on(table.storyId)]);
 
+export const storyReplies = mysqlTable("story_replies", {
+  id: int("id").autoincrement().primaryKey(),
+  publicId: varchar("publicId", { length: 32 }).notNull().unique(),
+  storyId: int("storyId").notNull().references(() => stories.id, { onDelete: "cascade" }),
+  senderId: int("senderId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => [index("story_replies_story_idx").on(table.storyId, table.createdAt)]);
+
 export const shortVideos = mysqlTable("short_videos", {
   id: int("id").autoincrement().primaryKey(),
   publicId: varchar("publicId", { length: 32 }).notNull(),

@@ -6,12 +6,12 @@
 - [x] Create secure protected tRPC routers, authorization helpers, validation schemas, and shared error boundaries.
 - [x] Implement Manus OAuth-aware identity extension points, guarded routes, profile creation, editing, privacy controls, blocking, and account-deletion flow.
 - [x] Implement object-storage-backed validated uploads for avatars, posts, stories, message attachments, and voice notes.
-- [ ] Build public/private profiles, follow requests, follow/unfollow actions, and social-graph views.
+- [x] Build public/private profiles, follow requests, follow/unfollow actions, and social-graph views.
 - [x] Build persistent post creation, media carousels, captions, hashtags, locations, likes, comments, saves, reports, pagination, and optimistic client updates.
 - [x] Build personalized feed, loading states, empty states, error recovery, and responsive media presentation.
-- [ ] Build 24-hour stories with views, viewer experience, visibility, replies, and scheduled expiration architecture.
-- [ ] Build vertical short-video discovery with autoplay controls, engagement actions, lazy loading, and next-item prefetching.
-- [ ] Build Explore, trending and recommended content, category browsing, and debounced database-backed search.
+- [x] Build 24-hour stories with views, viewer experience, visibility, replies, and scheduled expiration architecture.
+- [x] Build vertical short-video discovery with autoplay controls, engagement actions, lazy loading, and next-item prefetching.
+- [x] Build Explore, trending and recommended content, category browsing, and debounced database-backed search.
 - [x] Build persistent direct conversations, group chat administration, attachments, reactions, replies, forwarding, deletion, and conversation search.
 - [x] Build browser-supported voice-note recording, metadata handling, playback, and graceful unsupported-browser behavior.
 - [x] Add delivery/read receipts, typing indicators, presence, and last-seen interaction states.
@@ -28,8 +28,8 @@
 - [x] Expose all remaining privacy controls for messaging, mentions, read receipts, and story visibility.
 - [x] Add account workflow tests for profile updates, privacy settings, blocking, and deletion.
 - [x] Attach and verify storage-backed uploads for stories, message media, and voice notes.
-- [ ] Derive safe media metadata on the server where practical and validate client-supplied dimensions or durations.
+- [x] Derive safe media metadata on the server where practical and validate client-supplied dimensions or durations.
 - [x] Render existing paginated comments in post detail and provide report workflow coverage.
-- [ ] Add selected-message replies, destination selection for forwarding, and user-facing conversation search.
+- [x] Add selected-message replies, destination selection for forwarding, and user-facing conversation search.
 - [x] Add delivery receipts distinct from read receipts and render delivery state in conversations.
-- [ ] Strengthen server-side media metadata derivation and voice-note duration validation.
+- [x] Strengthen server-side media metadata derivation and voice-note duration validation.

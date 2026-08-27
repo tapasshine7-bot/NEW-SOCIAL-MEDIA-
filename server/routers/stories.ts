@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, gt, inArray, or, sql } from "drizzle-orm";
 import { z } from "zod";
-import { follows, mediaUploads, notifications, profiles, stories, storyViews, users } from "../../drizzle/schema";
+import { follows, mediaUploads, notifications, profiles, stories, storyReplies, storyViews, users } from "../../drizzle/schema";
 import { createPublicId, isBlockedEitherWay } from "../db/social";
 import { getDb } from "../db";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
@@ -40,6 +40,15 @@ export const storiesRouter = router({
       const existing = (await db.select({ id: storyViews.id }).from(storyViews).where(and(eq(storyViews.storyId, story.id), eq(storyViews.viewerId, ctx.user.id))).limit(1))[0];
       if (!existing) { await db.insert(storyViews).values({ storyId: story.id, viewerId: ctx.user.id }); await db.update(stories).set({ viewsCount: sql`${stories.viewsCount} + 1` }).where(eq(stories.id, story.id)); }
     }
+    return { success: true } as const;
+  }),
+
+  reply: protectedProcedure.input(z.object({ storyId, body: z.string().trim().min(1).max(2000) })).mutation(async ({ ctx, input }) => {
+    const db = await requireDb();
+    const story = (await db.select().from(stories).where(and(eq(stories.publicId, input.storyId), gt(stories.expiresAt, new Date()), sql`${stories.deletedAt} IS NULL`)).limit(1))[0];
+    if (!story || story.authorId === ctx.user.id || await isBlockedEitherWay(ctx.user.id, story.authorId)) throw new TRPCError({ code: "FORBIDDEN", message: "This story is unavailable for replies." });
+    await db.insert(storyReplies).values({ publicId: createPublicId("storyreply"), storyId: story.id, senderId: ctx.user.id, body: input.body });
+    await db.insert(notifications).values({ publicId: createPublicId("notice"), recipientId: story.authorId, actorId: ctx.user.id, kind: "story_reply", entityType: "story", entityPublicId: input.storyId });
     return { success: true } as const;
   }),
 

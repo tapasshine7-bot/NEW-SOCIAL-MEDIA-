@@ -34,6 +34,18 @@ function assertUploadAllowed(purpose: z.infer<typeof uploadPurpose>, mimeType: s
   if (bytes > maxBytes) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: `This ${kind} exceeds the permitted upload size.` });
 }
 
+function assertFileSignature(mimeType: string, bytes: Buffer) {
+  const starts = (...values: number[]) => values.every((value, index) => bytes[index] === value);
+  const valid = mimeType === "image/jpeg" ? starts(0xff, 0xd8, 0xff)
+    : mimeType === "image/png" ? starts(0x89, 0x50, 0x4e, 0x47)
+    : mimeType === "image/gif" ? bytes.subarray(0, 3).toString("ascii") === "GIF"
+    : mimeType === "image/webp" ? bytes.subarray(0, 4).toString("ascii") === "RIFF" && bytes.subarray(8, 12).toString("ascii") === "WEBP"
+    : mimeType === "video/webm" || mimeType === "audio/webm" ? starts(0x1a, 0x45, 0xdf, 0xa3)
+    : mimeType === "audio/ogg" ? bytes.subarray(0, 4).toString("ascii") === "OggS"
+    : true;
+  if (!valid) throw new TRPCError({ code: "BAD_REQUEST", message: "The file contents do not match its declared media type." });
+}
+
 export const uploadsRouter = router({
   create: protectedProcedure.input(z.object({
     purpose: uploadPurpose,
@@ -49,6 +61,9 @@ export const uploadsRouter = router({
     const bytes = Buffer.from(input.dataBase64, "base64");
     if (bytes.length === 0) throw new TRPCError({ code: "BAD_REQUEST", message: "The uploaded file was empty." });
     assertUploadAllowed(input.purpose, input.mimeType, bytes.length);
+    assertFileSignature(input.mimeType, bytes);
+    if ((input.width === undefined) !== (input.height === undefined)) throw new TRPCError({ code: "BAD_REQUEST", message: "Media width and height must be supplied together." });
+    if (input.durationMs !== undefined && input.durationMs > 7_200_000) throw new TRPCError({ code: "BAD_REQUEST", message: "Media duration exceeds the permitted limit." });
 
     const extension = path.extname(input.originalName).toLowerCase().replace(/[^a-z0-9.]/g, "").slice(0, 12);
     const storage = await storagePut(`members/${ctx.user.id}/${input.purpose}/${createPublicId("media")}${extension}`, bytes, input.mimeType);
