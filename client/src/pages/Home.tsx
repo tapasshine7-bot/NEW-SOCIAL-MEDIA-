@@ -7,7 +7,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { ArrowUpRight, LockKeyhole, MessageCircleMore, Sparkles, UsersRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 /**
  * All content in this page are only for example, replace with your own feature implementation
@@ -15,11 +15,14 @@ import { Link } from "wouter";
  */
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const account = trpc.account.me.useQuery(undefined, { enabled: isAuthenticated });
+  const [, navigate] = useLocation();
+  useEffect(() => { if (isAuthenticated && account.data && !account.data.profile.onboardingCompletedAt) navigate("/onboarding", { replace: true }); }, [isAuthenticated, account.data?.profile.onboardingCompletedAt, navigate]);
   return <AppShell>{isAuthenticated ? <SignedInHome /> : <WelcomeHome />}</AppShell>;
 }
 
 function WelcomeHome() {
-  return <div className="mx-auto max-w-5xl"><section className="relative overflow-hidden rounded-[2rem] border border-border bg-card px-6 py-14 shadow-[0_24px_80px_rgba(42,34,104,.10)] sm:px-10 lg:px-14 lg:py-20"><div className="pointer-events-none absolute -right-20 -top-28 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(101,215,255,.42),rgba(99,91,255,.06)_54%,transparent_72%)] blur-2xl" /><div className="relative max-w-2xl"><p className="eyebrow">A quieter way to connect</p><h1 className="mt-5 text-balance text-4xl font-semibold tracking-[-0.05em] sm:text-5xl lg:text-6xl">Share what matters. <span className="text-primary">Keep the rest close.</span></h1><p className="mt-6 max-w-xl text-pretty text-base leading-7 text-muted-foreground sm:text-lg">Luma is a thoughtful social space for sharing, discovering people, and holding conversations that feel more human.</p><div className="mt-9 flex flex-wrap gap-3"><Button className="rounded-full px-6" onClick={startLogin}>Enter Luma <ArrowUpRight size={16} /></Button><Link href="/explore" className="inline-flex h-10 items-center rounded-full border border-border bg-background px-5 text-sm font-semibold transition hover:bg-accent">Explore the space</Link></div></div></section><section className="mt-6 grid gap-4 md:grid-cols-3"><ValueCard icon={Sparkles} title="A considered feed" text="Create a calmer, more meaningful social rhythm." /><ValueCard icon={MessageCircleMore} title="Conversations with context" text="Messages, replies, and groups—kept deliberately organized." /><ValueCard icon={LockKeyhole} title="Privacy by default" text="Clear account controls, secure sessions, and member-first choices." /></section></div>;
+  return <div className="mx-auto flex min-h-[calc(100dvh-11rem)] max-w-md items-center"><section className="relative w-full overflow-hidden rounded-[2rem] border border-border bg-card px-7 py-11 text-center shadow-[0_24px_80px_rgba(42,34,104,.10)] sm:px-10"><div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(101,215,255,.42),rgba(99,91,255,.06)_56%,transparent_72%)] blur-xl" /><span className="relative mx-auto grid h-16 w-16 place-items-center rounded-[23px] bg-[linear-gradient(135deg,#6049ea,#a177ff_55%,#67d3ff)] text-2xl font-black text-white shadow-[0_12px_30px_rgba(99,91,255,.3)]">L</span><div className="relative"><p className="eyebrow mt-7">Social, in a softer light</p><h1 className="mt-3 text-4xl font-semibold tracking-[-.05em]">A place for the people and moments that matter.</h1><p className="mt-5 text-sm leading-6 text-muted-foreground">Share your perspective, discover thoughtful voices, and keep conversations close.</p><div className="mt-8 grid gap-3"><Button className="h-12 rounded-xl text-base" onClick={startLogin}>Create account <ArrowUpRight size={17} /></Button><Button variant="outline" className="h-12 rounded-xl text-base" onClick={startLogin}>Log in</Button></div><p className="mt-5 text-xs leading-5 text-muted-foreground">Sign in securely with the configured account provider. Additional social providers appear only when configured.</p></div></section></div>;
 }
 
 function SignedInHome() {

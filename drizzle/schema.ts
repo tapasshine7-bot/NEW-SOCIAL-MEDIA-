@@ -71,6 +71,8 @@ export const profiles = mysqlTable("profiles", {
   showActivityStatus: boolean("showActivityStatus").default(true).notNull(),
   readReceipts: boolean("readReceipts").default(true).notNull(),
   storyVisibility: mysqlEnum("storyVisibility", privacyChoices).default("everyone").notNull(),
+  interests: text("interests"),
+  onboardingCompletedAt: timestamp("onboardingCompletedAt"),
   followersCount: int("followersCount").default(0).notNull(),
   followingCount: int("followingCount").default(0).notNull(),
   postsCount: int("postsCount").default(0).notNull(),

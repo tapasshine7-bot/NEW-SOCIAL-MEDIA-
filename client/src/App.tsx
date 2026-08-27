@@ -15,6 +15,8 @@ import PostDetail from "./pages/PostDetail";
 import Reels from "./pages/Reels";
 import Stories from "./pages/Stories";
 import Admin from "./pages/Admin";
+import Onboarding from "./pages/Onboarding";
+import Create from "./pages/Create";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -29,6 +31,8 @@ function Router() {
       <Route path={"/post/:postId"} component={PostDetail} />
       <Route path={"/reels"} component={Reels} />
       <Route path={"/stories"} component={Stories} />
+      <Route path={"/onboarding"} component={Onboarding} />
+      <Route path={"/create"} component={Create} />
       <Route path={"/admin"} component={Admin} />
       <Route path={"/settings"} component={Settings} />
       <Route path={"/404"} component={NotFound} />

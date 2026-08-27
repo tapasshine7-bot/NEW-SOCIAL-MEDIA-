@@ -67,12 +67,16 @@
   }
   * { @apply border-border; }
   html { font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
-  body { @apply min-h-dvh bg-background text-foreground antialiased; }
+  body { @apply min-h-dvh bg-background text-foreground antialiased; background-image: radial-gradient(circle at 6% -8%, oklch(0.92 0.07 286 / .48), transparent 30rem), radial-gradient(circle at 105% 23%, oklch(0.94 0.05 240 / .36), transparent 25rem); }
   button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 @layer components {
   .surface-panel { @apply rounded-[1.5rem] border border-border/80 bg-card shadow-[0_12px_35px_rgba(34,29,83,0.06)]; }
+  .dark body { background-image: radial-gradient(circle at 8% -8%, oklch(0.34 0.11 286 / .34), transparent 30rem), radial-gradient(circle at 105% 23%, oklch(0.27 0.06 240 / .24), transparent 25rem); }
+  .dark .surface-panel { box-shadow: 0 18px 46px rgba(0, 0, 0, .2); }
+  .luma-mark { position: relative; overflow: hidden; }
+  .luma-mark::after { content: ""; position: absolute; inset: 18%; border: 1px solid rgba(255,255,255,.46); border-radius: 40%; transform: rotate(35deg); }
   .eyebrow { @apply text-[0.69rem] font-bold uppercase tracking-[0.18em] text-primary; }
 }
 

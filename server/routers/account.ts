@@ -8,6 +8,7 @@ import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 
 const usernameSchema = z.string().trim().toLowerCase().regex(/^[a-z0-9_]{3,30}$/, "Use 3–30 lowercase letters, numbers, or underscores.");
 const privacySchema = z.enum(["everyone", "followers", "none"]);
+const reservedUsernames = new Set(["admin", "administrator", "api", "explore", "home", "login", "messages", "notifications", "profile", "reels", "settings", "stories", "support"]);
 
 async function requireDatabase() {
   const db = await getDb();
@@ -26,6 +27,24 @@ export const accountRouter = router({
     const profile = await getProfileByUsername(input.username);
     if (!profile) throw new TRPCError({ code: "NOT_FOUND", message: "This profile is unavailable." });
     return profile;
+  }),
+
+  usernameAvailability: publicProcedure.input(z.object({ username: z.string().trim().toLowerCase().max(30) })).query(async ({ input }) => {
+    if (!/^[a-z0-9_]{3,30}$/.test(input.username)) return { available: false, reason: "Use 3–30 lowercase letters, numbers, or underscores." };
+    if (reservedUsernames.has(input.username)) return { available: false, reason: "That username is reserved." };
+    const db = await requireDatabase();
+    const existing = (await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.username, input.username)).limit(1))[0];
+    return existing ? { available: false, reason: "That username is already taken." } : { available: true, reason: "Username available." };
+  }),
+
+  completeOnboarding: protectedProcedure.input(z.object({ displayName: z.string().trim().min(1).max(80), username: usernameSchema, interests: z.array(z.string().trim().min(1).max(40)).min(1).max(12) })).mutation(async ({ ctx, input }) => {
+    if (reservedUsernames.has(input.username)) throw new TRPCError({ code: "BAD_REQUEST", message: "That username is reserved." });
+    const db = await requireDatabase();
+    const existing = (await db.select({ userId: profiles.userId }).from(profiles).where(eq(profiles.username, input.username)).limit(1))[0];
+    if (existing && existing.userId !== ctx.user.id) throw new TRPCError({ code: "CONFLICT", message: "That username is already taken." });
+    await ensureProfileForUser(ctx.user.id);
+    await db.update(profiles).set({ displayName: input.displayName, username: input.username, interests: JSON.stringify(input.interests), onboardingCompletedAt: new Date() }).where(eq(profiles.userId, ctx.user.id));
+    return getProfileForUser(ctx.user.id);
   }),
 
   updateProfile: protectedProcedure.input(z.object({

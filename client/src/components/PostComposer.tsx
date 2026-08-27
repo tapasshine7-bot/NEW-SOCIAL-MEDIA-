@@ -10,8 +10,8 @@ const MAX_CLIENT_MEDIA_BYTES = 50 * 1024 * 1024;
 
 function base64For(file: File) { return new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onerror = () => reject(new Error("The selected file could not be read.")); reader.onload = () => resolve(String(reader.result).split(",")[1] ?? ""); reader.readAsDataURL(file); }); }
 
-export function PostComposer({ onPublished }: { onPublished: () => void }) {
-  const [open, setOpen] = useState(false);
+export function PostComposer({ onPublished, defaultOpen = false }: { onPublished: () => void; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
   const [caption, setCaption] = useState("");
   const [locationName, setLocationName] = useState("");
   const [files, setFiles] = useState<File[]>([]);

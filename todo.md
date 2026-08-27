@@ -33,3 +33,8 @@
 - [x] Add selected-message replies, destination selection for forwarding, and user-facing conversation search.
 - [x] Add delivery receipts distinct from read receipts and render delivery state in conversations.
 - [x] Strengthen server-side media metadata derivation and voice-note duration validation.
+- [x] Audit every route, feature surface, API flow, database area, PWA behavior, and responsive state against the premium upgrade prompt.
+- [x] Rebuild logged-out welcome, authentication entry, onboarding, username guidance, and account-completion experience for first-time clarity.
+- [x] Add clear universal create actions and improve home, stories, discovery, posts, profiles, and messaging flows for mainstream usability.
+- [x] Upgrade design tokens, branded visual hierarchy, mobile navigation labels, empty states, accessibility, and responsive polish.
+- [x] Validate the upgraded application with tests, route checks, mobile/desktop screenshots, and final documentation.
