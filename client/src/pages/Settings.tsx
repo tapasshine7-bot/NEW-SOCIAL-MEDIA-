@@ -1,0 +1,57 @@
+import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { startLogin } from "@/const";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+import { AlertTriangle, Loader2, ShieldCheck, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+export default function Settings() {
+  const { isAuthenticated, loading, logout } = useAuth();
+  const account = trpc.account.me.useQuery(undefined, { enabled: isAuthenticated });
+  const blocked = trpc.account.blocked.useQuery(undefined, { enabled: isAuthenticated });
+  const followRequests = trpc.social.incomingFollowRequests.useQuery(undefined, { enabled: isAuthenticated });
+  const updateProfile = trpc.account.updateProfile.useMutation({ onSuccess: () => account.refetch() });
+  const updatePrivacy = trpc.account.updatePrivacy.useMutation({ onSuccess: () => account.refetch() });
+  const unblock = trpc.account.unblock.useMutation({ onSuccess: () => blocked.refetch() });
+  const deleteAccount = trpc.account.requestDeletion.useMutation({ onSuccess: async () => { toast.success("Account deletion requested."); await logout(); } });
+  const respondToFollowRequest = trpc.social.respondToFollowRequest.useMutation({ onSuccess: () => { followRequests.refetch(); account.refetch(); } });
+  const [displayName, setDisplayName] = useState("");
+  const [username, setUsername] = useState("");
+  const [bio, setBio] = useState("");
+  const [website, setWebsite] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const profile = account.data?.profile;
+
+  useEffect(() => {
+    if (!profile) return;
+    setDisplayName(profile.displayName);
+    setUsername(profile.username);
+    setBio(profile.bio ?? "");
+    setWebsite(profile.website ?? "");
+  }, [profile]);
+
+  if (loading || (isAuthenticated && account.isLoading)) return <AppShell compact><div className="grid min-h-[55vh] place-items-center"><Loader2 className="animate-spin text-primary" /></div></AppShell>;
+  if (!isAuthenticated) return <AppShell compact><section className="surface-panel mx-auto max-w-lg px-6 py-12 text-center"><ShieldCheck className="mx-auto text-primary" /><h1 className="mt-4 text-2xl font-semibold tracking-tight">Settings are personal.</h1><p className="mt-3 text-sm text-muted-foreground">Sign in to manage your privacy and communication preferences.</p><Button className="mt-6 rounded-full" onClick={startLogin}>Sign in</Button></section></AppShell>;
+  if (!profile) return <AppShell compact><section className="surface-panel mx-auto max-w-lg px-6 py-12 text-center"><h1 className="text-xl font-semibold">Settings are temporarily unavailable.</h1><p className="mt-3 text-sm text-muted-foreground">Please refresh the page and try again.</p></section></AppShell>;
+
+  const saveProfile = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try { await updateProfile.mutateAsync({ displayName, username, bio: bio || null, website: website || null }); toast.success("Profile updated."); }
+    catch (error) { toast.error(error instanceof Error ? error.message : "Could not update your profile."); }
+  };
+  const setPrivate = async (isPrivate: boolean) => { try { await updatePrivacy.mutateAsync({ isPrivate }); toast.success(isPrivate ? "Profile is now private." : "Profile is now public."); } catch { toast.error("Could not update privacy."); } };
+  const updateChoice = async (field: "allowMessages" | "allowMentions" | "storyVisibility", value: "everyone" | "followers" | "none") => {
+    try { await updatePrivacy.mutateAsync({ [field]: value }); toast.success("Privacy preference updated."); }
+    catch { toast.error("Could not update that preference."); }
+  };
+
+  return <AppShell><section className="mx-auto max-w-2xl"><p className="eyebrow">Account controls</p><h1 className="mt-2 text-3xl font-semibold tracking-tight">A space that feels like yours.</h1><p className="mt-3 max-w-lg text-sm leading-6 text-muted-foreground">Update the way people find you, and choose how your activity is shared.</p><form className="surface-panel mt-7 p-6 sm:p-8" onSubmit={saveProfile}><div className="flex items-center justify-between"><div><h2 className="font-semibold">Profile</h2><p className="mt-1 text-sm text-muted-foreground">Your public identity in Luma.</p></div><Button type="submit" className="rounded-full" disabled={updateProfile.isPending}>{updateProfile.isPending ? "Saving…" : "Save changes"}</Button></div><div className="mt-7 grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-medium">Display name<Input value={displayName} onChange={event => setDisplayName(event.target.value)} maxLength={80} required /></label><label className="grid gap-2 text-sm font-medium">Username<Input value={username} onChange={event => setUsername(event.target.value.toLowerCase())} maxLength={30} pattern="[a-z0-9_]{3,30}" required /></label></div><label className="mt-5 grid gap-2 text-sm font-medium">Bio<Textarea value={bio} onChange={event => setBio(event.target.value)} maxLength={220} rows={3} /></label><label className="mt-5 grid gap-2 text-sm font-medium">Website<Input type="url" value={website} onChange={event => setWebsite(event.target.value)} maxLength={500} placeholder="https://example.com" /></label></form><section className="surface-panel mt-5 divide-y divide-border"><div className="flex items-center justify-between gap-5 px-6 py-5"><div><h2 className="font-semibold">Private profile</h2><p className="mt-1 text-sm leading-5 text-muted-foreground">Approve new followers before they can see your content.</p></div><Button type="button" variant={profile.isPrivate ? "default" : "outline"} className="shrink-0 rounded-full" disabled={updatePrivacy.isPending} onClick={() => setPrivate(!profile.isPrivate)}>{profile.isPrivate ? "Private" : "Public"}</Button></div><PreferenceSelect label="Who can message you" detail="Choose who can start a conversation with you." value={profile.allowMessages} onChange={value => updateChoice("allowMessages", value)} /><PreferenceSelect label="Who can mention you" detail="Control who can reference you in posts and stories." value={profile.allowMentions} onChange={value => updateChoice("allowMentions", value)} /><PreferenceSelect label="Story audience" detail="Set the default audience for new stories." value={profile.storyVisibility} onChange={value => updateChoice("storyVisibility", value)} /><div className="flex items-center justify-between gap-5 px-6 py-5"><div><h2 className="font-semibold">Activity status</h2><p className="mt-1 text-sm leading-5 text-muted-foreground">Let people see when you are available to chat.</p></div><Button type="button" variant={profile.showActivityStatus ? "default" : "outline"} className="shrink-0 rounded-full" disabled={updatePrivacy.isPending} onClick={() => updatePrivacy.mutate({ showActivityStatus: !profile.showActivityStatus })}>{profile.showActivityStatus ? "On" : "Off"}</Button></div><div className="flex items-center justify-between gap-5 px-6 py-5"><div><h2 className="font-semibold">Read receipts</h2><p className="mt-1 text-sm leading-5 text-muted-foreground">Let people know when you have read their messages.</p></div><Button type="button" variant={profile.readReceipts ? "default" : "outline"} className="shrink-0 rounded-full" disabled={updatePrivacy.isPending} onClick={() => updatePrivacy.mutate({ readReceipts: !profile.readReceipts })}>{profile.readReceipts ? "On" : "Off"}</Button></div></section><section className="surface-panel mt-5 p-6 sm:p-8"><h2 className="font-semibold">Follow requests</h2><p className="mt-1 text-sm text-muted-foreground">Review who can see your private profile.</p><div className="mt-5 space-y-3">{followRequests.data?.length ? followRequests.data.map(({ profile: requester, requestId }) => <div key={requestId} className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3"><div><p className="text-sm font-medium">{requester.displayName}</p><p className="text-xs text-muted-foreground">@{requester.username}</p></div><div className="flex gap-2"><Button size="sm" className="rounded-full" disabled={respondToFollowRequest.isPending} onClick={() => respondToFollowRequest.mutate({ username: requester.username, approve: true })}>Approve</Button><Button size="sm" variant="outline" className="rounded-full" disabled={respondToFollowRequest.isPending} onClick={() => respondToFollowRequest.mutate({ username: requester.username, approve: false })}>Decline</Button></div></div>) : <p className="rounded-xl bg-muted px-4 py-3 text-sm text-muted-foreground">No pending follow requests.</p>}</div></section><section className="surface-panel mt-5 p-6 sm:p-8"><h2 className="font-semibold">Blocked members</h2><p className="mt-1 text-sm text-muted-foreground">Blocked members cannot contact you or follow your profile.</p><div className="mt-5 space-y-3">{blocked.data?.length ? blocked.data.map(member => <div key={member.publicId} className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3"><div><p className="text-sm font-medium">{member.displayName}</p><p className="text-xs text-muted-foreground">@{member.username}</p></div><Button variant="ghost" size="sm" className="text-muted-foreground" disabled={unblock.isPending} onClick={() => unblock.mutate({ username: member.username })}><X size={15} />Unblock</Button></div>) : <p className="rounded-xl bg-muted px-4 py-3 text-sm text-muted-foreground">You have not blocked anyone.</p>}</div></section><section className="mt-5 rounded-[1.5rem] border border-destructive/25 bg-destructive/5 p-6 sm:p-8"><div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 shrink-0 text-destructive" size={19} /><div><h2 className="font-semibold text-destructive">Delete account</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">This immediately disables your account and hides your profile from normal use. Type <strong>DELETE</strong> to confirm.</p></div></div><div className="mt-5 flex max-w-md gap-3"><Input value={deleteConfirm} onChange={event => setDeleteConfirm(event.target.value)} placeholder="DELETE" aria-label="Confirm account deletion" /><Button type="button" variant="destructive" className="rounded-full" disabled={deleteConfirm !== "DELETE" || deleteAccount.isPending} onClick={() => deleteAccount.mutate({ confirmation: "DELETE" })}>{deleteAccount.isPending ? "Deleting…" : "Delete"}</Button></div></section></section></AppShell>;
+}
+
+function PreferenceSelect({ label, detail, value, onChange }: { label: string; detail: string; value: "everyone" | "followers" | "none"; onChange: (value: "everyone" | "followers" | "none") => void }) {
+  return <div className="flex items-center justify-between gap-5 px-6 py-5"><div><h2 className="font-semibold">{label}</h2><p className="mt-1 text-sm leading-5 text-muted-foreground">{detail}</p></div><select aria-label={label} value={value} onChange={event => onChange(event.target.value as "everyone" | "followers" | "none")} className="h-9 shrink-0 rounded-full border border-border bg-card px-3 text-sm font-medium outline-none ring-ring focus:ring-2"><option value="everyone">Everyone</option><option value="followers">Followers</option><option value="none">No one</option></select></div>;
+}

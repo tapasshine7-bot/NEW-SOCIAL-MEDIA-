@@ -1,0 +1,7 @@
+# Visual Verification Notes
+
+## 2026-08-27
+
+The responsive checks covered the authenticated application shell at desktop and 375-pixel mobile widths across Home, Explore, Reels, Messages, and Activity. Navigation, typography, content cards, empty states, primary actions, and mobile layout stacking rendered without visible overflow or overlap. The desktop messaging workspace displayed the expected two-column composition and the mobile layout stacked the inbox above the conversation pane. Content-specific screens remain naturally empty until members create profiles, posts, videos, conversations, and notifications.
+
+The final request-log inspection recorded successful authenticated and application query responses for the reviewed route set. The active development server started cleanly after the final restart, and the full Vitest, TypeScript, and production build commands completed successfully. Historic module-resolution entries remain in the rotated log output from transient hot-reload file creation but were not present after the final server restart.

@@ -1,0 +1,81 @@
+import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
+import path from "node:path";
+import { z } from "zod";
+import { mediaUploads, profiles } from "../../drizzle/schema";
+import { AUDIO_MIME_TYPES, FILE_MIME_TYPES, IMAGE_MIME_TYPES, MAX_UPLOAD_BYTES, MAX_VIDEO_UPLOAD_BYTES, VIDEO_MIME_TYPES } from "../../shared/social";
+import { createPublicId } from "../db/social";
+import { getDb } from "../db";
+import { storagePut } from "../storage";
+import { protectedProcedure, router } from "../_core/trpc";
+
+const uploadPurpose = z.enum(["avatar", "post", "story", "message", "voice", "video"]);
+const base64Schema = z.string().min(4).max(70_000_000).regex(/^[A-Za-z0-9+/]+={0,2}$/, "Invalid upload encoding.");
+
+function mediaKind(mimeType: string): "image" | "video" | "audio" | "file" {
+  if ((IMAGE_MIME_TYPES as readonly string[]).includes(mimeType)) return "image";
+  if ((VIDEO_MIME_TYPES as readonly string[]).includes(mimeType)) return "video";
+  if ((AUDIO_MIME_TYPES as readonly string[]).includes(mimeType)) return "audio";
+  return "file";
+}
+
+function assertUploadAllowed(purpose: z.infer<typeof uploadPurpose>, mimeType: string, bytes: number) {
+  const kind = mediaKind(mimeType);
+  const allowed = {
+    avatar: kind === "image",
+    post: kind === "image" || kind === "video",
+    story: kind === "image" || kind === "video",
+    message: kind === "image" || kind === "video" || kind === "audio" || (FILE_MIME_TYPES as readonly string[]).includes(mimeType),
+    voice: kind === "audio",
+    video: kind === "video",
+  }[purpose];
+  if (!allowed) throw new TRPCError({ code: "BAD_REQUEST", message: "That file type is not allowed for this upload." });
+  const maxBytes = kind === "video" ? MAX_VIDEO_UPLOAD_BYTES : MAX_UPLOAD_BYTES;
+  if (bytes > maxBytes) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: `This ${kind} exceeds the permitted upload size.` });
+}
+
+export const uploadsRouter = router({
+  create: protectedProcedure.input(z.object({
+    purpose: uploadPurpose,
+    originalName: z.string().trim().min(1).max(255),
+    mimeType: z.string().trim().max(120),
+    dataBase64: base64Schema,
+    width: z.number().int().positive().max(10_000).optional(),
+    height: z.number().int().positive().max(10_000).optional(),
+    durationMs: z.number().int().positive().max(7_200_000).optional(),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Uploads are temporarily unavailable." });
+    const bytes = Buffer.from(input.dataBase64, "base64");
+    if (bytes.length === 0) throw new TRPCError({ code: "BAD_REQUEST", message: "The uploaded file was empty." });
+    assertUploadAllowed(input.purpose, input.mimeType, bytes.length);
+
+    const extension = path.extname(input.originalName).toLowerCase().replace(/[^a-z0-9.]/g, "").slice(0, 12);
+    const storage = await storagePut(`members/${ctx.user.id}/${input.purpose}/${createPublicId("media")}${extension}`, bytes, input.mimeType);
+    const publicId = createPublicId("media");
+    await db.insert(mediaUploads).values({
+      publicId,
+      ownerId: ctx.user.id,
+      purpose: input.purpose,
+      storageKey: storage.key,
+      url: storage.url,
+      originalName: input.originalName,
+      mimeType: input.mimeType,
+      fileSize: bytes.length,
+      width: input.width,
+      height: input.height,
+      durationMs: input.durationMs,
+    });
+    return { publicId, url: storage.url, kind: mediaKind(input.mimeType), originalName: input.originalName, mimeType: input.mimeType, fileSize: bytes.length };
+  }),
+
+  setAvatar: protectedProcedure.input(z.object({ uploadId: z.string().min(8).max(32) })).mutation(async ({ ctx, input }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Uploads are temporarily unavailable." });
+    const upload = (await db.select().from(mediaUploads).where(eq(mediaUploads.publicId, input.uploadId)).limit(1))[0];
+    if (!upload || upload.ownerId !== ctx.user.id || upload.purpose !== "avatar" || upload.attachedAt) throw new TRPCError({ code: "FORBIDDEN", message: "That avatar upload is not available." });
+    await db.update(profiles).set({ avatarKey: upload.storageKey, avatarUrl: upload.url }).where(eq(profiles.userId, ctx.user.id));
+    await db.update(mediaUploads).set({ attachedAt: new Date() }).where(eq(mediaUploads.id, upload.id));
+    return { avatarUrl: upload.url };
+  }),
+});

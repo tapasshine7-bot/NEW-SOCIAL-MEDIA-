@@ -1,5 +1,62 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1787836685969,
+      "tag": "0000_large_harpoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1787836943519,
+      "tag": "0001_chilly_squadron_sinister",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787837210359,
+      "tag": "0002_long_preak",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1787837679145,
+      "tag": "0003_past_shaman",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1787838334897,
+      "tag": "0004_fine_wendell_vaughn",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1787838680738,
+      "tag": "0005_bent_franklin_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1787838727171,
+      "tag": "0006_silly_northstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1787839098751,
+      "tag": "0007_tough_catseye",
+      "breakpoints": true
+    }
+  ]
 }

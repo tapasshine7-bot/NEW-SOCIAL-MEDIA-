@@ -1,0 +1,35 @@
+# Project TODO
+
+- [x] Establish original product identity, responsive public navigation, app shell, and design tokens.
+- [x] Define normalized Drizzle schema for profiles, relationships, posts, media, stories, messaging, notifications, moderation, and administrative controls.
+- [x] Generate and apply the initial database migration.
+- [x] Create secure protected tRPC routers, authorization helpers, validation schemas, and shared error boundaries.
+- [x] Implement Manus OAuth-aware identity extension points, guarded routes, profile creation, editing, privacy controls, blocking, and account-deletion flow.
+- [x] Implement object-storage-backed validated uploads for avatars, posts, stories, message attachments, and voice notes.
+- [ ] Build public/private profiles, follow requests, follow/unfollow actions, and social-graph views.
+- [x] Build persistent post creation, media carousels, captions, hashtags, locations, likes, comments, saves, reports, pagination, and optimistic client updates.
+- [x] Build personalized feed, loading states, empty states, error recovery, and responsive media presentation.
+- [ ] Build 24-hour stories with views, viewer experience, visibility, replies, and scheduled expiration architecture.
+- [ ] Build vertical short-video discovery with autoplay controls, engagement actions, lazy loading, and next-item prefetching.
+- [ ] Build Explore, trending and recommended content, category browsing, and debounced database-backed search.
+- [x] Build persistent direct conversations, group chat administration, attachments, reactions, replies, forwarding, deletion, and conversation search.
+- [x] Build browser-supported voice-note recording, metadata handling, playback, and graceful unsupported-browser behavior.
+- [x] Add delivery/read receipts, typing indicators, presence, and last-seen interaction states.
+- [x] Build notification persistence, notification center states, contextual routing, and browser-push integration points.
+- [x] Add PWA manifest, original icons, service worker, offline fallback, safe cache behavior, and install experience.
+- [x] Implement light, dark, and system themes plus semantic accessibility and reduced-motion support.
+- [x] Build protected report handling, moderation tools, account enforcement, and an admin metrics dashboard.
+- [x] Add rate limits, validation, sanitization, secure headers, performance protections, and observability-ready error handling.
+- [x] Create development-safe seed tooling and isolate it from production behavior.
+- [x] Add unit, integration, and critical workflow tests across authentication, authorization, social, messaging, privacy, media, and administration.
+- [x] Add environment documentation, deployment documentation, README, and production readiness notes.
+- [x] Verify build, type checks, tests, responsive layouts, console health, and database operations.
+- [x] Add user-facing member blocking controls in profile and discovery surfaces.
+- [x] Expose all remaining privacy controls for messaging, mentions, read receipts, and story visibility.
+- [x] Add account workflow tests for profile updates, privacy settings, blocking, and deletion.
+- [x] Attach and verify storage-backed uploads for stories, message media, and voice notes.
+- [ ] Derive safe media metadata on the server where practical and validate client-supplied dimensions or durations.
+- [x] Render existing paginated comments in post detail and provide report workflow coverage.
+- [ ] Add selected-message replies, destination selection for forwarding, and user-facing conversation search.
+- [x] Add delivery receipts distinct from read receipts and render delivery state in conversations.
+- [ ] Strengthen server-side media metadata derivation and voice-note duration validation.

@@ -1,0 +1,12 @@
+{
+  "name": "Luma — Social in a softer light",
+  "short_name": "Luma",
+  "description": "A thoughtful social space for sharing, discovery, and conversations.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f8fc",
+  "theme_color": "#635bff",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

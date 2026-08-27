@@ -1,0 +1,14 @@
+import { and, desc, eq, sql } from "drizzle-orm";
+import { z } from "zod";
+import { posts, profiles, reports, users } from "../../drizzle/schema";
+import { getDb } from "../db";
+import { adminProcedure, router } from "../_core/trpc";
+
+async function requireDb() { const db = await getDb(); if (!db) throw new Error("Administration is temporarily unavailable."); return db; }
+export const adminRouter = router({
+  overview: adminProcedure.query(async () => { const db = await requireDb(); const [memberCount] = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.accountStatus, "active")); const [postCount] = await db.select({ count: sql<number>`count(*)` }).from(posts).where(eq(posts.state, "published")); const [openReports] = await db.select({ count: sql<number>`count(*)` }).from(reports).where(eq(reports.state, "open")); return { members: Number(memberCount?.count ?? 0), posts: Number(postCount?.count ?? 0), openReports: Number(openReports?.count ?? 0) }; }),
+  reports: adminProcedure.input(z.object({ state: z.enum(["open", "reviewing", "resolved", "dismissed"]).optional() }).optional()).query(async ({ input }) => { const db = await requireDb(); const rows = await db.select({ report: reports, reporter: profiles }).from(reports).innerJoin(profiles, eq(reports.reporterId, profiles.userId)).where(input?.state ? eq(reports.state, input.state) : undefined).orderBy(desc(reports.createdAt)).limit(100); return rows; }),
+  resolveReport: adminProcedure.input(z.object({ reportId: z.string().min(8).max(32), state: z.enum(["resolved", "dismissed"]), note: z.string().trim().max(1000).nullable().optional() })).mutation(async ({ ctx, input }) => { const db = await requireDb(); await db.update(reports).set({ state: input.state, reviewedById: ctx.user.id, resolutionNote: input.note ?? null, resolvedAt: new Date() }).where(eq(reports.publicId, input.reportId)); return { success: true } as const; }),
+  removePost: adminProcedure.input(z.object({ postId: z.string().min(8).max(32), note: z.string().trim().max(1000).nullable().optional() })).mutation(async ({ input }) => { const db = await requireDb(); await db.update(posts).set({ state: "removed", deletedAt: new Date() }).where(eq(posts.publicId, input.postId)); return { success: true } as const; }),
+  setAccountStatus: adminProcedure.input(z.object({ username: z.string().trim().toLowerCase().regex(/^[a-z0-9_]{3,30}$/), status: z.enum(["active", "suspended", "banned"]), reason: z.string().trim().max(1000).nullable().optional() })).mutation(async ({ input }) => { const db = await requireDb(); const profile = (await db.select().from(profiles).where(eq(profiles.username, input.username)).limit(1))[0]; if (!profile) throw new Error("Member not found."); await db.update(users).set({ accountStatus: input.status, suspendedAt: input.status === "active" ? null : new Date() }).where(eq(users.id, profile.userId)); return { success: true } as const; }),
+});
