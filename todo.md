@@ -38,3 +38,6 @@
 - [x] Add clear universal create actions and improve home, stories, discovery, posts, profiles, and messaging flows for mainstream usability.
 - [x] Upgrade design tokens, branded visual hierarchy, mobile navigation labels, empty states, accessibility, and responsive polish.
 - [x] Validate the upgraded application with tests, route checks, mobile/desktop screenshots, and final documentation.
+- [x] Add an original, high-clarity mobile feed header and horizontal story strip with visible creation and activity entry points.
+- [x] Refine the labeled mobile bottom navigation and universal creation behavior for immediate first-time understanding.
+- [x] Make short-video discovery visibly available from the home experience and verify all refined mobile routes.
