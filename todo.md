@@ -61,3 +61,5 @@
 - [x] Pass a selected remembered account’s email privately from Account Center to the login form after sign-out.
 - [x] Add automated coverage for the remembered-account login prefill handoff and its non-sensitive storage behavior.
 - [x] Replace remaining user-visible legacy Luma branding in current source with Nuvora.
+- [x] Push the verified Nuvora project to the user-provided GitHub repository.
+- [ ] Deploy the pushed repository to Vercel and verify the deployment status.
