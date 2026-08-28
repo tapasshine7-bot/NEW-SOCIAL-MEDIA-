@@ -12,7 +12,7 @@ import { publicProcedure, router } from "../_core/trpc";
 
 const scrypt = promisify(nodeScrypt);
 const emailSchema = z.string().trim().toLowerCase().email().max(320);
-const passwordSchema = z.string().min(12, "Use at least 12 characters.").max(128).refine(value => /[A-Za-z]/.test(value) && /\d/.test(value), "Use at least one letter and one number.");
+const passwordSchema = z.string().min(6, "Use at least 6 characters.").max(12, "Use no more than 12 characters.").refine(value => /[A-Za-z]/.test(value) && /\d/.test(value), "Use at least one letter and one number.");
 const localProvider = "email_password";
 const SHORT_SESSION_MS = 24 * 60 * 60 * 1000;
 
