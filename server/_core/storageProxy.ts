@@ -1,11 +1,23 @@
 import type { Express } from "express";
 import { ENV } from "./env";
 
+const MAX_STORAGE_KEY_LENGTH = 512;
+const ALLOWED_STORAGE_KEY = /^(?:members\/[1-9]\d*\/(?:avatar|post|story|message|voice|video)\/|generated\/)[A-Za-z0-9._-]+$/;
+
+export function isAllowedStorageKey(key: string) {
+  return key.length <= MAX_STORAGE_KEY_LENGTH && !key.includes("..") && !key.includes("\\") && ALLOWED_STORAGE_KEY.test(key);
+}
+
 export function registerStorageProxy(app: Express) {
   app.get("/manus-storage/*", async (req, res) => {
     const key = (req.params as Record<string, string>)[0];
     if (!key) {
       res.status(400).send("Missing storage key");
+      return;
+    }
+
+    if (!isAllowedStorageKey(key)) {
+      res.status(400).send("Invalid storage key");
       return;
     }
 

@@ -155,7 +155,12 @@ class SDKServer {
 
   private getSessionSecret() {
     const secret = ENV.cookieSecret;
+    if (!secret && ENV.isProduction) throw new Error("JWT_SECRET is not configured");
     return new TextEncoder().encode(secret);
+  }
+
+  private getSessionAppId() {
+    return ENV.appId || "nuvora";
   }
 
   /**
@@ -170,7 +175,7 @@ class SDKServer {
     return this.signSession(
       {
         openId,
-        appId: ENV.appId,
+        appId: this.getSessionAppId(),
         name: options.name || "",
       },
       options
@@ -214,7 +219,8 @@ class SDKServer {
       if (
         !isNonEmptyString(openId) ||
         !isNonEmptyString(appId) ||
-        !isNonEmptyString(name)
+        !isNonEmptyString(name) ||
+        appId !== this.getSessionAppId()
       ) {
         console.warn("[Auth] Session payload missing required fields");
         return null;

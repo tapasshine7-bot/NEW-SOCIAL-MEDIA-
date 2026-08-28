@@ -12,9 +12,15 @@ function rateLimit(req: express.Request, res: express.Response, next: express.Ne
   if (!req.path.startsWith("/api/")) return next();
   const now = Date.now();
   const ip = req.ip || req.socket.remoteAddress || "unknown";
+  const auth = req.path.includes("auth.local");
   const strict = req.path.includes("uploads") || req.path.includes("oauth");
-  const max = strict ? 20 : 180;
-  const key = `${strict ? "strict" : "standard"}:${ip}`;
+  const max = auth ? 10 : strict ? 20 : 180;
+  const key = `${auth ? "auth" : strict ? "strict" : "standard"}:${ip}`;
+  if (requestWindows.size > 10_000) {
+    requestWindows.forEach((windowRecord, windowKey) => {
+      if (windowRecord.resetAt <= now) requestWindows.delete(windowKey);
+    });
+  }
   const record = requestWindows.get(key);
   if (!record || record.resetAt <= now) { requestWindows.set(key, { count: 1, resetAt: now + 60_000 }); return next(); }
   if (record.count >= max) { res.setHeader("Retry-After", Math.ceil((record.resetAt - now) / 1000)); return res.status(429).json({ error: "Too many requests. Please retry shortly." }); }
