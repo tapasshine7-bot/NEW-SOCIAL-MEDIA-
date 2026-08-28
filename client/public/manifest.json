@@ -1,11 +1,11 @@
 {
-  "name": "Nuvora — Social in a softer light",
+  "name": "Nuvora — Keep the conversation moving",
   "short_name": "Nuvora",
-  "description": "A thoughtful social space for sharing, discovery, and conversations.",
+  "description": "A messaging-first social space for private chats, groups, communities, and updates.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8f8fc",
-  "theme_color": "#635bff",
+  "background_color": "#f4f8f4",
+  "theme_color": "#3f7d68",
   "icons": [
     { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]

@@ -1,18 +1,18 @@
 # Nuvora
 
-**Nuvora** is a mobile-first social and messaging PWA built with React, TypeScript, Express, tRPC, Drizzle ORM, MySQL-compatible storage, Manus OAuth, and S3-compatible object storage.
+**Nuvora** is a messaging-first social PWA built with React, TypeScript, Express, tRPC, Drizzle ORM, MySQL-compatible storage, local email/password sessions, and S3-compatible object storage.
 
 ## Product scope
 
-The implementation includes protected identity profiles, privacy and blocking controls, follows and follow requests, storage-backed post publishing, engagement, persistent stories with an automatic 24-hour expiry boundary, Explore search, short-video interactions, persistent direct and group conversations, voice-note capture where the browser supports it, delivery and read state, polling-based typing and presence states, notification persistence, PWA install/offline support, and protected moderation workflows.
+The implementation includes a Chats-first member workspace, protected identity profiles, privacy and blocking controls, follows and follow requests, storage-backed post publishing, engagement, real-data Updates with an automatic 24-hour expiry boundary, Explore search, short-video interactions, persistent direct and group conversations, text/image/video/file/voice-note messages, delivery and read state, polling-based typing and presence states, notification persistence, PWA install/offline support, Communities and Calls integration surfaces, and protected moderation workflows.
 
 ## Architecture
 
 | Layer | Responsibility |
 |---|---|
-| React + Tailwind | Responsive public pages, member workspace, bottom navigation, themes, accessibility states, and PWA client experience. |
+| React + Tailwind | Responsive email/password entry, Chats-first member workspace, primary communication navigation, themes, accessibility states, and PWA client experience. |
 | tRPC + Express | Typed public/protected/admin procedures, validated inputs, authorization boundaries, and scheduled cleanup endpoints. |
-| Drizzle + MySQL | Normalized relational records for identity, profiles, social graph, content, stories, messages, receipts, notifications, reports, and moderation state. |
+| Drizzle + MySQL | Normalized relational records for identity, profiles, social graph, content, Updates, conversations, messages, receipts, notifications, reports, and moderation state. |
 | Object storage | Original media bytes only; the database stores URLs, object keys, ownership, types, size, and attachment metadata. |
 
 ## Local development
@@ -23,15 +23,15 @@ Database changes follow the sequence: update `drizzle/schema.ts`; run `pnpm driz
 
 ## Environment
 
-The managed environment provides `DATABASE_URL`, `JWT_SECRET`, OAuth variables, and S3-compatible storage helpers. Do not commit `.env` files. Future passwordless-email or external identity support should use the `account_identities` table and server-managed secrets. Browser push subscriptions are stored as integration points in `user_devices`; a production push provider still requires its own server-side credentials and delivery service.
+The managed environment provides `DATABASE_URL`, `JWT_SECRET`, and S3-compatible storage helpers. Do not commit `.env` files. Email/password credentials are stored as salted scrypt hashes in `account_identities`; raw passwords never enter client storage or application logs. Browser push subscriptions are stored as integration points in `user_devices`; production password recovery, email verification, and calling require their own server-side providers and credentials.
 
 ## Media constraints
 
 Only supported image, video, audio, and document types are accepted. Upload ownership and purpose are validated before attachments are created. Raw media is held in object storage, never database BLOB columns. The current upload path is appropriate for MVP-sized files; use direct signed object-storage uploads and background transcoding for larger production media.
 
-## Scheduled story cleanup
+## Scheduled Update cleanup
 
-Story reads enforce `expiresAt` in every user-facing query. The protected `/api/scheduled/expire-stories` endpoint soft-deletes expired stories for cleanup and audit consistency. After publishing the app, register a managed scheduled HTTP POST using the platform scheduler; the endpoint accepts only authenticated scheduled requests.
+Update reads enforce `expiresAt` in every user-facing query. The protected `/api/scheduled/expire-stories` endpoint soft-deletes expired Updates for cleanup and audit consistency. After publishing the app, register a managed scheduled HTTP POST using the platform scheduler; the endpoint accepts only authenticated scheduled requests.
 
 ## Deployment
 
