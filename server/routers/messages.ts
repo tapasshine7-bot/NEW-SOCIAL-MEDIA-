@@ -73,9 +73,18 @@ export const messagesRouter = router({
     const publicId = createPublicId("msg"); await db.insert(messages).values({ publicId, conversationId: current.conversation.id, senderId: ctx.user.id, kind, body: input.body ?? null, replyToId: replyTo?.id, forwardedFromId: input.forwardedFromId ? (await db.select({ id: messages.id }).from(messages).where(eq(messages.publicId, input.forwardedFromId)).limit(1))[0]?.id : null });
     const sent = (await db.select().from(messages).where(eq(messages.publicId, publicId)).limit(1))[0]; if (!sent) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Message could not be sent." });
     if (uploads.length) { await db.insert(messageAttachments).values(uploads.map(upload => ({ messageId: sent.id, kind: upload.mimeType.startsWith("image/") ? "image" as const : upload.mimeType.startsWith("video/") ? "video" as const : upload.mimeType.startsWith("audio/") ? "audio" as const : "file" as const, storageKey: upload.storageKey, url: upload.url, originalName: upload.originalName, mimeType: upload.mimeType, fileSize: upload.fileSize, durationMs: upload.durationMs }))); await db.update(mediaUploads).set({ attachedAt: new Date() }).where(inArray(mediaUploads.id, uploads.map(upload => upload.id))); }
-    await db.update(conversations).set({ lastMessageAt: new Date() }).where(eq(conversations.id, current.conversation.id)); await db.delete(conversationTyping).where(and(eq(conversationTyping.conversationId, current.conversation.id), eq(conversationTyping.userId, ctx.user.id)));
+    await Promise.all([
+      db.update(conversations).set({ lastMessageAt: new Date() }).where(eq(conversations.id, current.conversation.id)),
+      db.delete(conversationTyping).where(and(eq(conversationTyping.conversationId, current.conversation.id), eq(conversationTyping.userId, ctx.user.id))),
+    ]);
     const recipients = await db.select({ userId: conversationMembers.userId }).from(conversationMembers).where(and(eq(conversationMembers.conversationId, current.conversation.id), isNull(conversationMembers.leftAt)));
-    const others = recipients.filter(member => member.userId !== ctx.user.id); if (others.length) { await db.insert(messageDeliveries).values(others.map(member => ({ messageId: sent.id, userId: member.userId }))); await db.insert(notifications).values(others.map(member => ({ publicId: createPublicId("notice"), recipientId: member.userId, actorId: ctx.user.id, kind: "message" as const, entityType: "conversation", entityPublicId: input.conversationId }))); }
+    const others = recipients.filter(member => member.userId !== ctx.user.id);
+    if (others.length) {
+      await Promise.all([
+        db.insert(messageDeliveries).values(others.map(member => ({ messageId: sent.id, userId: member.userId }))),
+        db.insert(notifications).values(others.map(member => ({ publicId: createPublicId("notice"), recipientId: member.userId, actorId: ctx.user.id, kind: "message" as const, entityType: "conversation", entityPublicId: input.conversationId }))),
+      ]);
+    }
     return { publicId };
   }),
 
