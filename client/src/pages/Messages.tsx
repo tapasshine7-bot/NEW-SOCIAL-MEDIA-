@@ -21,7 +21,6 @@ export default function Messages() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [favorites, setFavorites] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem("nuvora-favorite-chats") || "[]"); } catch { return []; } });
-  useEffect(() => { if (!activeId && conversations.data?.[0]) setActiveId(conversations.data[0].publicId); }, [activeId, conversations.data]);
   const toggleFavorite = (id: string) => setFavorites(current => { const next = current.includes(id) ? current.filter(item => item !== id) : [...current, id]; try { localStorage.setItem("nuvora-favorite-chats", JSON.stringify(next)); } catch {} return next; });
   if (!isAuthenticated) return <AppShell><section className="surface-panel mx-auto max-w-lg px-6 py-14 text-center"><MessageCircleMore className="mx-auto text-primary" size={30} /><p className="eyebrow mt-5">Private conversations</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Sign in to open your chats.</h1><p className="mt-3 text-sm leading-6 text-muted-foreground">Your conversations, groups, and shared moments belong in one protected space.</p><Button className="mt-6 rounded-xl" onClick={startLogin}>Sign in to messages</Button></section></AppShell>;
   const data = (conversations.data ?? []) as Conversation[];

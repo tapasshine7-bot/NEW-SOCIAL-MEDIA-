@@ -1,4 +1,4 @@
-import { Bell, CircleUserRound, Laptop, MessageSquareText, Moon, PhoneCall, Search, Sun, UsersRound, Waves } from "lucide-react";
+import { Bell, CircleUserRound, Laptop, MessageSquareText, Moon, Search, Sun, UsersRound, Waves } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -7,7 +7,6 @@ const navigation = [
   { href: "/", label: "Chats", icon: MessageSquareText },
   { href: "/updates", label: "Updates", icon: Waves },
   { href: "/communities", label: "Communities", icon: UsersRound },
-  { href: "/calls", label: "Calls", icon: PhoneCall },
   { href: "/profile", label: "Profile", icon: CircleUserRound },
 ];
 
@@ -57,7 +56,7 @@ export function AppShell({ children, compact = false }: { children: ReactNode; c
         </div>
       </header>
       <main className="mx-auto w-full max-w-7xl px-4 pb-24 pt-5 sm:px-6 sm:pt-8 lg:px-8">{children}</main>
-      {!compact && <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/80 bg-background/95 px-2 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl lg:hidden" aria-label="Mobile navigation"><div className="mx-auto grid max-w-lg grid-cols-5 items-center gap-1">{navigation.map(({ href, label, icon: Icon }) => { const active = location === href || (href === "/updates" && location === "/stories"); return <Link key={href} href={href} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-semibold transition ${active ? "text-primary" : "text-muted-foreground"}`} aria-current={active ? "page" : undefined}><Icon size={19} strokeWidth={active ? 2.5 : 2} /><span className="truncate">{label}</span></Link>; })}</div></nav>}
+      {!compact && <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/80 bg-background/95 px-2 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl lg:hidden" aria-label="Mobile navigation"><div className="mx-auto grid max-w-lg grid-cols-4 items-center gap-1">{navigation.map(({ href, label, icon: Icon }) => { const active = location === href || (href === "/updates" && location === "/stories"); return <Link key={href} href={href} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-semibold transition ${active ? "text-primary" : "text-muted-foreground"}`} aria-current={active ? "page" : undefined}><Icon size={19} strokeWidth={active ? 2.5 : 2} /><span className="truncate">{label}</span></Link>; })}</div></nav>}
     </div>
   );
 }

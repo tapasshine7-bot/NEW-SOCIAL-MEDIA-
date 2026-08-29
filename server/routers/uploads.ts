@@ -6,7 +6,7 @@ import { mediaUploads, profiles } from "../../drizzle/schema";
 import { AUDIO_MIME_TYPES, FILE_MIME_TYPES, IMAGE_MIME_TYPES, MAX_UPLOAD_BYTES, MAX_VIDEO_UPLOAD_BYTES, VIDEO_MIME_TYPES } from "../../shared/social";
 import { createPublicId } from "../db/social";
 import { getDb } from "../db";
-import { storagePut } from "../storage";
+import { storagePresignPut, storagePut } from "../storage";
 import { protectedProcedure, router } from "../_core/trpc";
 
 const uploadPurpose = z.enum(["avatar", "post", "story", "message", "voice", "video"]);
@@ -47,6 +47,43 @@ function assertFileSignature(mimeType: string, bytes: Buffer) {
 }
 
 export const uploadsRouter = router({
+  presign: protectedProcedure.input(z.object({
+    purpose: uploadPurpose,
+    originalName: z.string().trim().min(1).max(255),
+    mimeType: z.string().trim().max(120),
+    fileSize: z.number().int().positive().max(MAX_VIDEO_UPLOAD_BYTES),
+  })).mutation(async ({ ctx, input }) => {
+    assertUploadAllowed(input.purpose, input.mimeType, input.fileSize);
+    const extension = path.extname(input.originalName).toLowerCase().replace(/[^a-z0-9.]/g, "").slice(0, 12);
+    const publicId = createPublicId("media");
+    const storage = await storagePresignPut(`members/${ctx.user.id}/${input.purpose}/${publicId}${extension}`);
+    return { uploadId: publicId, ...storage, kind: mediaKind(input.mimeType) };
+  }),
+
+  finalize: protectedProcedure.input(z.object({
+    uploadId: z.string().min(8).max(32),
+    purpose: uploadPurpose,
+    originalName: z.string().trim().min(1).max(255),
+    mimeType: z.string().trim().max(120),
+    fileSize: z.number().int().positive().max(MAX_VIDEO_UPLOAD_BYTES),
+    width: z.number().int().positive().max(10_000).optional(),
+    height: z.number().int().positive().max(10_000).optional(),
+    durationMs: z.number().int().positive().max(7_200_000).optional(),
+    storageKey: z.string().min(1).max(500),
+    url: z.string().min(1).max(2000),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Uploads are temporarily unavailable." });
+    assertUploadAllowed(input.purpose, input.mimeType, input.fileSize);
+    const expectedPrefix = `members/${ctx.user.id}/${input.purpose}/${input.uploadId}`;
+    if (!input.storageKey.startsWith(expectedPrefix) || input.url !== `/manus-storage/${input.storageKey}`) throw new TRPCError({ code: "BAD_REQUEST", message: "The uploaded media reference is invalid." });
+    if ((input.width === undefined) !== (input.height === undefined)) throw new TRPCError({ code: "BAD_REQUEST", message: "Media width and height must be supplied together." });
+    const existing = (await db.select({ id: mediaUploads.id }).from(mediaUploads).where(eq(mediaUploads.publicId, input.uploadId)).limit(1))[0];
+    if (existing) throw new TRPCError({ code: "CONFLICT", message: "This upload has already been finalized." });
+    await db.insert(mediaUploads).values({ publicId: input.uploadId, ownerId: ctx.user.id, purpose: input.purpose, storageKey: input.storageKey, url: input.url, originalName: input.originalName, mimeType: input.mimeType, fileSize: input.fileSize, width: input.width, height: input.height, durationMs: input.durationMs });
+    return { publicId: input.uploadId, url: input.url, kind: mediaKind(input.mimeType), originalName: input.originalName, mimeType: input.mimeType, fileSize: input.fileSize };
+  }),
+
   create: protectedProcedure.input(z.object({
     purpose: uploadPurpose,
     originalName: z.string().trim().min(1).max(255),

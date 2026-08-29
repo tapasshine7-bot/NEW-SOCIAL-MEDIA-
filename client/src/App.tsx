@@ -20,7 +20,6 @@ import { AccountHelp, Login, SignUp } from "./pages/AuthPages";
 import Create from "./pages/Create";
 import Accounts from "./pages/Accounts";
 import Communities from "./pages/Communities";
-import Calls from "./pages/Calls";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -30,7 +29,6 @@ function Router() {
       <Route path={"/explore"} component={Explore} />
       <Route path={"/messages"} component={Messages} />
       <Route path={"/communities"} component={Communities} />
-      <Route path={"/calls"} component={Calls} />
       <Route path={"/notifications"} component={Notifications} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/u/:username"} component={MemberProfile} />
