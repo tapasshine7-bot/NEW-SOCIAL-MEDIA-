@@ -1,18 +1,16 @@
 {
-  "name": "Nuvora — Keep the conversation moving",
-  "short_name": "Nuvora",
-  "description": "A messaging-first social space for private chats, groups, communities, and updates.",
+  "name": "NUVORA 1 — Organize. Progress. Protect.",
+  "short_name": "NUVORA 1",
+  "description": "A calm personal workspace for life reminders, higher-study progress, and safer digital decisions.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#071b32",
-  "theme_color": "#0f766e",
-  "categories": ["social", "communication"],
+  "background_color": "#061638",
+  "theme_color": "#061638",
+  "categories": ["productivity", "education", "security"],
   "icons": [
-    { "src": "/nuvora-icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/nuvora-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "/nuvora1-icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/nuvora1-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
-
