@@ -31,13 +31,13 @@ function InstallButton() {
     return () => window.removeEventListener("beforeinstallprompt", capture);
   }, []);
   if (!prompt) return null;
-  return <button type="button" className="hidden h-9 items-center rounded-full border border-border bg-card px-3 text-xs font-semibold text-muted-foreground transition hover:bg-accent hover:text-foreground sm:inline-flex" onClick={async () => { await prompt.prompt(); setPrompt(null); }}>Install app</button>;
+  return <button type="button" className="inline-flex h-9 items-center rounded-full border border-border bg-card px-3 text-xs font-semibold text-muted-foreground transition hover:bg-accent hover:text-foreground" onClick={async () => { await prompt.prompt(); setPrompt(null); }}>Install app</button>;
 }
 
 export function AppShell({ children, compact = false }: { children: ReactNode; compact?: boolean }) {
   const [location] = useLocation();
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="relative isolate min-h-dvh bg-transparent text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/80 bg-background/92 backdrop-blur-xl">
         <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3 font-semibold tracking-tight" aria-label="Nuvora home">
