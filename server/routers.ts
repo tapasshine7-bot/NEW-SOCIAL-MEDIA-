@@ -13,6 +13,7 @@ import { socialRouter } from "./routers/social";
 import { storiesRouter } from "./routers/stories";
 import { uploadsRouter } from "./routers/uploads";
 import { videosRouter } from "./routers/videos";
+import { workspaceRouter } from "./routers/workspace";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -38,6 +39,7 @@ export const appRouter = router({
   messages: messagesRouter,
   notifications: notificationsRouter,
   admin: adminRouter,
+  workspace: workspaceRouter,
 });
 
 export type AppRouter = typeof appRouter;

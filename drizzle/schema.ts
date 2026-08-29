@@ -459,6 +459,33 @@ export const userDevices = mysqlTable("user_devices", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, table => [uniqueIndex("user_devices_device_unique").on(table.deviceId), index("user_devices_user_idx").on(table.userId)]);
 
+export const lifeItems = mysqlTable("life_items", {
+  id: int("id").autoincrement().primaryKey(),
+  publicId: varchar("publicId", { length: 32 }).notNull(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 180 }).notNull(),
+  category: varchar("category", { length: 40 }).default("other").notNull(),
+  notes: text("notes"),
+  dueAt: timestamp("dueAt"),
+  completed: boolean("completed").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [uniqueIndex("life_items_public_id_unique").on(table.publicId), index("life_items_user_due_idx").on(table.userId, table.dueAt)]);
+export const studyItems = mysqlTable("study_items", {
+  id: int("id").autoincrement().primaryKey(),
+  publicId: varchar("publicId", { length: 32 }).notNull(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 180 }).notNull(),
+  kind: varchar("kind", { length: 40 }).default("task").notNull(),
+  notes: text("notes"),
+  dueAt: timestamp("dueAt"),
+  progress: int("progress").default(0).notNull(),
+  completed: boolean("completed").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [uniqueIndex("study_items_public_id_unique").on(table.publicId), index("study_items_user_due_idx").on(table.userId, table.dueAt)]);
+export type LifeItem = typeof lifeItems.$inferSelect;
+export type StudyItem = typeof studyItems.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Profile = typeof profiles.$inferSelect;
